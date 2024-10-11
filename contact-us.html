@@ -1343,20 +1343,24 @@
                                                                                                             <ul></ul>
                                                                                                         </div>
 
-                                                                                                        <form method="post" action="contactform/contactengine.htm" class="forms-input">
+                                                                                                        <form method="post" class="forms-input" id="casinoCafeForm">
                                                                                                             <label for="Name">Name:</label>
-                                                                                                            <input type="text" name="Name" id="Name" />
-                                                                                                            
-                                                                                                            <label for="City">Subject:</label>
-                                                                                                            <input type="text" name="City" id="City" />
-                                                                                                
+                                                                                                            <input type="text" name="name" id="Name" required />
+                                                                                                        
                                                                                                             <label for="Email">Email:</label>
-                                                                                                            <input type="text" name="Email" id="Email" />
-                                                                                                            
+                                                                                                            <input type="text" name="email" id="Email" required/>
+                                                                                                        
                                                                                                             <label for="Message">Message:</label><br />
-                                                                                                            <textarea name="Message" rows="20" cols="20" id="Message"></textarea>
-
-                                                                                                            <input type="submit" name="submit" value="Send" class="submit-button" />
+                                                                                                            <textarea name="message" rows="20" cols="20" id="Message"></textarea>
+                                                                                                        
+                                                                                                            <!-- <input type="submit" name="submit" value="Send" class="submit-button" /> -->
+                                                                                                            <div class="button-container">
+                                                                                                                <button type="submit" class="submit-button" id="submitButton">
+                                                                                                                  <span class="button-text">Send</span>
+                                                                                                                  <span class="loading-spinner"></span>
+                                                                                                                </button>
+                                                                                                              </div>
+                                                                                                              <p style="color: white;" id="formStatus"></p> <!-- To display success or error message -->
                                                                                                         </form>
         
                                                                                                     </div>
@@ -1699,7 +1703,48 @@
         <a id="go-to-top" href="javascript:;"><span class="ti-arrow-up"></span></a>
 
     </div>
-
+   
+<script>
+    const form = document.getElementById('casinoCafeForm');
+    const submitButton = document.getElementById('submitButton');
+    const buttonText = document.querySelector('.button-text');
+    const loadingSpinner = document.querySelector('.loading-spinner');
+    const formStatus = document.getElementById('formStatus');
+  
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      buttonText.textContent = 'Sending...';
+      loadingSpinner.style.display = 'inline-block';
+      submitButton.disabled = true;
+  
+      try {
+        const formData = new FormData(form);
+        const response = await fetch('http://localhost:3000/api/casinocafeContact', {
+          method: 'POST',
+          body: JSON.stringify(Object.fromEntries(formData)),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+  
+        const result = await response.json();
+  
+        if (response.ok) {
+          formStatus.textContent = 'Message sent successfully!';
+          form.reset(); // Clear form on success
+        } else {
+          formStatus.textContent = 'Error: ' + result.msg;
+        }
+      } catch (error) {
+        formStatus.textContent = 'Failed to send. Please try again.';
+      } finally {
+        buttonText.textContent = 'Send';
+        loadingSpinner.style.display = 'none';
+        submitButton.disabled = false;
+      }
+    });
+  </script>
 
     <script type="text/javascript" src="js/jquery.js" ></script>
     <script type="text/javascript" src="js/ui/core.min.js" ></script>
